@@ -3,23 +3,6 @@ from RockPaperScissorsUI import Ui_RockPaperScissors
 import random
 
 
-def computer_choice():
-    """
-    The computer_choice function uses the random module to randomly select the
-    AI's choice of 'rock', 'paper', or 'scissors'
-
-    :return: AI's choice of 'rock', 'paper', or 'scissors'
-    """
-    ai_hand = random.randint(1, 3)
-    if ai_hand == 1:
-        ai_hand = 'rock'
-    elif ai_hand == 2:
-        ai_hand = 'paper'
-    elif ai_hand == 3:
-        ai_hand = 'scissors'
-    return ai_hand
-
-
 class Controller(QMainWindow, Ui_RockPaperScissors):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,7 +10,33 @@ class Controller(QMainWindow, Ui_RockPaperScissors):
         self.game_over = 0
         self.player_wins = 0
         self.ai_wins = 0
+        self.round = 1
         self.Submit.clicked.connect(lambda: self.game_start())
+
+    def computer_choice(self):
+        """
+        The computer_choice function uses the random module to randomly select the
+        AI's choice of 'rock', 'paper', or 'scissors'
+
+        :return: AI's choice of 'rock', 'paper', or 'scissors'
+        """
+        ai_hand = random.randint(1, 3)
+        if ai_hand == 1:
+            ai_hand = 'rock'
+            self.AI_rock_image.show()
+            self.AI_scissors_image.hide()
+            self.AI_paper_image_.hide()
+        elif ai_hand == 2:
+            ai_hand = 'paper'
+            self.AI_paper_image_.show()
+            self.AI_scissors_image.hide()
+            self.AI_rock_image.hide()
+        elif ai_hand == 3:
+            ai_hand = 'scissors'
+            self.AI_scissors_image.show()
+            self.AI_paper_image_.hide()
+            self.AI_rock_image.hide()
+        return ai_hand
 
     def player_choice(self):
         """
@@ -39,38 +48,44 @@ class Controller(QMainWindow, Ui_RockPaperScissors):
         choice = ''
         if self.radioButton_Rock.isChecked():
             choice = 'rock'
+            self.Player_rock_image.show()
+            self.Player_paper_image.hide()
+            self.player_scissors_image.hide()
         elif self.radioButton_Paper.isChecked():
             choice = 'paper'
+            self.Player_rock_image.hide()
+            self.Player_paper_image.show()
+            self.player_scissors_image.hide()
         elif self.radioButton_Scissors.isChecked():
             choice = 'scissors'
+            self.Player_rock_image.hide()
+            self.Player_paper_image.hide()
+            self.player_scissors_image.show()
         else:
-            self.browser_Game.append('Select a Hand!')
+            self.win_state_label.setText("Choose a hand")
+            choice = ''
         return choice
 
     def run_game(self, player, ai):
         victor = ''
+        if player == '':
+            victor = ''
         if player == ai:
-            self.browser_Game.append('Computer is {}. You are {}. You tie.'.format(ai, player))
+            pass
         elif player == 'rock':
             if ai == 'paper':
-                self.browser_Game.append('Computer is paper. You are rock. You lose the round.')
                 victor = 'AI'
             elif ai == 'scissors':
-                self.browser_Game.append('Computer is scissors. You are rock. You win the round.')
                 victor = 'Player'
         elif player == 'paper':
             if ai == 'rock':
-                self.browser_Game.append('Computer is rock. You are paper. You win the round.')
                 victor = 'Player'
             elif ai == 'scissors':
-                self.browser_Game.append('Computer is scissors. You are paper. You lose the round.')
                 victor = 'AI'
         elif player == 'scissors':
             if ai == 'rock':
-                self.browser_Game.append('Computer is rock. You are scissors. You lose the round.')
                 victor = 'AI'
             elif ai == 'paper':
-                self.browser_Game.append('Computer is paper. You are scissors. You Win the round.')
                 victor = 'Player'
         else:
             pass
@@ -78,36 +93,46 @@ class Controller(QMainWindow, Ui_RockPaperScissors):
 
     def win_state(self):
         if self.ai_wins == self.player_wins:
-            return "GAME OVER-IT'S A TIE"
+            return f'Tie! {self.player_wins} to {self.ai_wins}'
         elif self.ai_wins < self.player_wins:
-            return "GAME OVER-YOU WIN"
+            return f'You Win! {self.player_wins} to {self.ai_wins}'
         elif self.ai_wins > self.player_wins:
-            return "GAME OVER-COMPUTER WINS"
+            return f'You Lose. {self.player_wins} to {self.ai_wins}'
 
     def reset(self):
         self.game_over = 0
         self.player_wins = 0
         self.ai_wins = 0
+        self.round = 1
+        self.player_score_label.hide()
+        self.ai_score_label.hide()
+        self.ai_score_label.setText(str(self.ai_wins))
+        self.player_score_label.setText(str(self.player_wins))
+        self.round_label.setText(f'Round:{self.round}')
 
     def game_start(self):
+        self.player_score_label.show()
+        self.ai_score_label.show()
+        self.round_label.setText(f'Round:{self.round}')
+        self.round += 1
+        self.win_state_label.setText('')
         self.game_over += 1
-        if self.game_over == 3:
-            self.browser_Game.append(self.win_state())
-            self.browser_Game.append('NEW GAME')
-            self.reset()
-        elif self.ai_wins == 2 and self.game_over == 2:
-            self.browser_Game.append(self.win_state())
-            self.browser_Game.append('NEW GAME')
-            self.reset()
-        elif self.player_wins == 2 and self.game_over == 2:
-            self.browser_Game.append(self.win_state())
-            self.browser_Game.append('NEW GAME')
-            self.reset()
-
-        victor = self.run_game(self.player_choice(), computer_choice())
+        victor = self.run_game(self.player_choice(), self.computer_choice())
         if victor == 'AI':
             self.ai_wins += 1
+            self.ai_score_label.setText(str(self.ai_wins))
+            self.player_score_label.setText(str(self.player_wins))
         elif victor == 'Player':
             self.player_wins += 1
-        else:
-            pass
+            self.ai_score_label.setText(str(self.ai_wins))
+            self.player_score_label.setText(str(self.player_wins))
+
+        if self.ai_wins == 2:
+            self.win_state_label.setText(self.win_state())
+            self.reset()
+        elif self.player_wins == 2:
+            self.win_state_label.setText(self.win_state())
+            self.reset()
+        elif self.game_over == 3:
+            self.win_state_label.setText(self.win_state())
+            self.reset()
