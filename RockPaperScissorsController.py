@@ -67,6 +67,13 @@ class Controller(QMainWindow, Ui_RockPaperScissors):
         return choice
 
     def run_game(self, player, ai):
+        """
+        The function compares the choices of both the AI and the player to see who won the round
+
+        :param player: return value of the player_choice function; string
+        :param ai: return value of computer_choice function; string
+        :return: returns who won the round; string
+        """
         victor = ''
         if player == '':
             victor = ''
@@ -92,6 +99,11 @@ class Controller(QMainWindow, Ui_RockPaperScissors):
         return victor
 
     def win_state(self):
+        """
+        Determine who won the best of 3 rounds based on the scores
+
+        :return: The string of if the player won,lost, or tied, and states the scores PLAYER TO AI
+        """
         if self.ai_wins == self.player_wins:
             return f'Tie! {self.player_wins} to {self.ai_wins}'
         elif self.ai_wins < self.player_wins:
@@ -100,6 +112,9 @@ class Controller(QMainWindow, Ui_RockPaperScissors):
             return f'You Lose. {self.player_wins} to {self.ai_wins}'
 
     def reset(self):
+        """
+        This function is called at the end of a best of 3 game, and resets the all the variables for a new game
+        """
         self.game_over = 0
         self.player_wins = 0
         self.ai_wins = 0
@@ -111,6 +126,11 @@ class Controller(QMainWindow, Ui_RockPaperScissors):
         self.round_label.setText(f'Round:{self.round}')
 
     def game_start(self):
+        """
+        This is the primary function, called when "Submit" button is clicked.
+        This function keeps track of rounds, counts the scores of each player, and calls
+            the "choice" functions as well as the win_state function when a win state is reached
+        """
         self.player_score_label.show()
         self.ai_score_label.show()
         self.round_label.setText(f'Round:{self.round}')
